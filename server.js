@@ -1,6 +1,22 @@
+const express = require('express');
+const app = express();
 const http = require("http");
+const logger = require('./logger');
 
-// const log = loggingLibrary({ apiKey: "XYZ" });
+app.get('/', (req, res, next) => {
+    logger.debug('This is the "/" route.')
+    res.status(200).send('Hello World!')
+});
+
+app.get('/boom', (req, res, next) => {
+    try {
+        throw new Error('Wowza!')
+    } catch (error) {
+        logger.error('Whooops! This broke with error: ', error)
+        res.status(500).send('Error!')
+    }
+});
+
 const server = http.createServer((request, response) => {
     const requestStart = Date.now();
 
@@ -80,113 +96,96 @@ const log = (request, response, errorMessage, requestStart, body) => {
     );
 };
 
-// const log = (request, response, errorMessage) => {
-//     const { rawHeaders, httpVersion, method, socket, url } = request;
-//     const { remoteAddress, remoteFamily } = socket;
+//TODO: Logging library implementation
+/*
+const log = loggingLibrary({ apiKey: "XYZ" });
+const server = http.createServer((request, response) => {
+  log(request, response);
+  process(request, response);
+});
 
-//     const { statusCode, statusMessage } = response;
-//     const headers = response.getHeaders();
+const loggingLibray = config => {
+  const loggingApiHeaders = {
+    Authorization: "Bearer " + config.apiKey
+  };
 
-//     console.log(
-//         JSON.stringify({
-//             timestamp: Date.now(),
-//             processingTime: Date.now() - requestStart,
-//             rawHeaders,
-//             body,
-//             errorMessage,
-//             httpVersion,
-//             method,
-//             remoteAddress,
-//             remoteFamily,
-//             url,
-//             response: {
-//                 statusCode,
-//                 statusMessage,
-//                 headers
-//             }
-//         })
-//     );
-// };
+  const log = (request, response, errorMessage, requestStart) => {
+    const { rawHeaders, httpVersion, method, socket, url } = request;
+    const { remoteAddress, remoteFamily } = socket;
 
-// const loggingLibrary = config => {
-//     const loggingApiHeaders = {
-//         Authorization: "Bearer " + config.apiKey
-//     };
+    const { statusCode, statusMessage } = response;
+    const responseHeaders = response.getHeaders();
 
-//     const log = (request, response, errorMessage, requestStart) => {
-//         const { rawHeaders, httpVersion, method, socket, url } = request;
-//         const { remoteAddress, remoteFamily } = socket;
+    http.request("https://example.org/logging-endpoint", {
+      headers: loggingApiHeaders,
+      body: JSON.stringify({
+        timestamp: requestStart,
+        processingTime: Date.now() - requestStart,
+        rawHeaders,
+        body,
+        errorMessage,
+        httpVersion,
+        method,
+        remoteAddress,
+        remoteFamily,
+        url,
+        response: {
+          statusCode,
+          statusMessage,
+          headers: responseHeaders
+        }
+      })
+    });
+  };
 
-//         const { statusCode, statusMessage } = response;
-//         const responseHeaders = response.getHeaders();
+  return (request, response) => {
+    const requestStart = Date.now();
 
-//         http.request("https://example.org/logging-endpoint", {
-//             headers: loggingApiHeaders,
-//             body: JSON.stringify({
-//                 timestamp: requestStart,
-//                 processingTime: Date.now() - requestStart,
-//                 rawHeaders,
-//                 body,
-//                 errorMessage,
-//                 httpVersion,
-//                 method,
-//                 remoteAddress,
-//                 remoteFamily,
-//                 url,
-//                 response: {
-//                     statusCode,
-//                     statusMessage,
-//                     headers: responseHeaders
-//                 }
-//             })
-//         });
-//     };
+    // ========== REQUEST HANLDING ==========
+    let body = [];
+    let requestErrorMessage = null;
+    const getChunk = chunk => body.push(chunk);
+    const assembleBody = () => {
+      body = Buffer.concat(body).toString();
+    };
+    const getError = error => {
+      requestErrorMessage = error.message;
+    };
+    request.on("data", getChunk);
+    request.on("end", assembleBody);
+    request.on("error", getError);
 
-//     return (request, response) => {
-//         const requestStart = Date.now();
+    // ========== RESPONSE HANLDING ==========
+    const logClose = () => {
+      removeHandlers();
+      log(request, response, "Client aborted.", requestStart);
+    };
+    const logError = error => {
+      removeHandlers();
+      log(request, response, error.message, requestStart);
+    };
+    const logFinish = () => {
+      removeHandlers();
+      log(request, response, requestErrorMessage, requestStart);
+    };
+    response.on("close", logClose);
+    response.on("error", logError);
+    response.on("finish", logFinish);
 
-//         // ========== REQUEST HANLDING ==========
-//         let body = [];
-//         let requestErrorMessage = null;
-//         const getChunk = chunk => body.push(chunk);
-//         const assembleBody = () => {
-//             body = Buffer.concat(body).toString();
-//         };
-//         const getError = error => {
-//             requestErrorMessage = error.message;
-//         };
-//         request.on("data", getChunk);
-//         request.on("end", assembleBody);
-//         request.on("error", getError);
+    // ========== CLEANUP ==========
+    const removeHandlers = () => {
+      request.off("data", getChunk);
+      request.off("end", assembleBody);
+      request.off("error", getError);
 
-//         // ========== RESPONSE HANLDING ==========
-//         const logClose = () => {
-//             removeHandlers();
-//             log(request, response, "Client aborted.", requestStart);
-//         };
-//         const logError = error => {
-//             removeHandlers();
-//             log(request, response, error.message, requestStart);
-//         };
-//         const logFinish = () => {
-//             removeHandlers();
-//             log(request, response, requestErrorMessage, requestStart);
-//         };
-//         response.on("close", logClose);
-//         response.on("error", logError);
-//         response.on("finish", logFinish);
+      response.off("close", logClose);
+      response.off("error", logError);
+      response.off("finish", logFinish);
+    };
+  };
+};
+*/
 
-//         // ========== CLEANUP ==========
-//         const removeHandlers = () => {
-//             request.off("data", getChunk);
-//             request.off("end", assembleBody);
-//             request.off("error", getError);
 
-//             response.off("close", logClose);
-//             response.off("error", logError);
-//             response.off("finish", logFinish);
-//         };
-//     };
-// };
-
-server.listen(8888, console.log('Listening on ' + 8888));
+app.listen(3000, () =>
+    logger.info('Express.js listening on port 3000.'));
