@@ -17,7 +17,8 @@ const httpLogger = morgan(format, {
                 url,
                 status,
                 contentLength,
-                responseTime
+                responseTime,
+                body
             } = JSON.parse(message)
 
             logger.info('HTTP Access Log', {
@@ -26,7 +27,8 @@ const httpLogger = morgan(format, {
                 url,
                 status: Number(status),
                 contentLength,
-                responseTime: Number(responseTime)
+                responseTime: Number(responseTime),
+                body
             })
         }
     }
