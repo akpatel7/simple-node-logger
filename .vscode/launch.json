@@ -7,20 +7,11 @@
         {
             "type": "pwa-node",
             "request": "launch",
-            "name": "Request Logger",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}\\server.js"
-        },
-        {
-            "type": "pwa-node",
-            "request": "launch",
             "name": "Request File Logger",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\app.js"
+            "program": "${workspaceFolder}\\dist\\app.js"
         },
     ]
 }

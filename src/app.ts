@@ -1,7 +1,9 @@
-const express = require('express')
-const logger = require('./logger')
-const httpLogger = require('./httpLogger')
-const bodyParser = require('body-parser');
+import express from 'express';
+import logger from './logger';
+import httpLogger from './httpLogger';
+import bodyParser from 'body-parser';
+
+import SourceMapper from './utils/sourceMapper';
 
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -9,6 +11,19 @@ app.use(bodyParser.json());
 app.use(bodyParser.raw());
 
 app.use(httpLogger)
+
+// if (!config.publishSourceMaps) {   //whatever check for prod env
+//     app.use(/(.*)\.js\.map$/, function(req, res) {
+//       res.status(404);
+//       res.send('<h1>404 Forbidden</h1>');
+//     })
+// }
+// //static middleware
+// app.use(staticFileMiddleware);
+
+// const sourceMapper = new SourceMapper();
+// sourceMapper.init('directory having .js and .js.map');
+
 
 app.get('/', (req, res, next) => {
     res.status(200).send('Hello World!')
@@ -32,8 +47,14 @@ app.get('/errorhandler', (req, res, next) => {
 })
 
 app.post('/api/log', (req, res) => {
-    console.log('Got body:', req.body);
+    // console.log('Got body:', req.body);
     logger.info(req.body);
+
+    //     if (req.body.stack) {
+    //         var stacktrace = sourceMapper.getOriginalStacktrace(req.body.stack)
+    //     };
+    //    //send log to Logstash or whatever
+
     res.sendStatus(200);
 });
 
@@ -41,7 +62,7 @@ app.use(logErrors)
 app.use(errorHandler)
 
 function logErrors(err, req, res, next) {
-    console.error(err.stack)
+    // console.error(err.stack)
     next(err)
 }
 function errorHandler(err, req, res, next) {
@@ -50,5 +71,5 @@ function errorHandler(err, req, res, next) {
 
 app.listen(3000, () => {
     logger.info('Express.js listening on port 3000.');
-    console.log('Express.js listening on port 3000');
+    // console.log('Express.js listening on port 3000');
 });
