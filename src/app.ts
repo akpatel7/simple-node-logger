@@ -73,9 +73,19 @@ app.get('/errorhandler', (req, res, next) => {
 })
 
 app.post('/api/log', (req, res) => {
-    // console.log('Got body:', req.body);
-    Logger.info(req.body);
-
+    // tslint:disable-next-line: no-console
+    console.log('Got log body:', req.body);
+    const messageBody = JSON.parse(req.body.message);
+    const error = {
+        fileName: req.body?.fileName,
+        level: req.body?.level,
+        lineNumber: req.body?.lineNumber,
+        message: messageBody?.message,
+        stack: messageBody?.stack,
+        timestamp: req.body?.timestamp,
+        additional: req.body?.additional,
+    }
+    Logger.info(error);
     //     if (req.body.stack) {
     //         var stacktrace = sourceMapper.getOriginalStacktrace(req.body.stack)
     //     };

@@ -4,11 +4,11 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
+    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix && npm run clearLog",
     "build": "tsc",
     "prestart": "npm run build",
     "clearLog": "rimraf ./logs/*",
-    "start": "npm run build && npm run clearLog && node ./dist/app.js",
+    "start": "npm run clearLog && node ./dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
