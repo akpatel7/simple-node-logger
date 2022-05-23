@@ -3,14 +3,18 @@ import logger from './logger';
 import httpLogger from './httpLogger';
 import bodyParser from 'body-parser';
 
-import SourceMapper from './utils/sourceMapper';
+// import SourceMapper from './utils/sourceMapper';
 
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
-
-app.use(httpLogger)
+try {
+    app.use(httpLogger)
+}
+catch(err) {
+    throw new Error(err);
+}
 
 // if (!config.publishSourceMaps) {   //whatever check for prod env
 //     app.use(/(.*)\.js\.map$/, function(req, res) {
@@ -25,11 +29,11 @@ app.use(httpLogger)
 // sourceMapper.init('directory having .js and .js.map');
 
 
-app.get('/', (req, res, next) => {
+app.get('/', (req, res) => {
     res.status(200).send('Hello World!')
 })
 
-app.get('/boom', (req, res, next) => {
+app.get('/boom', (req, res) => {
     try {
         throw new Error('Wowza!')
     } catch (error) {
@@ -65,7 +69,7 @@ function logErrors(err, req, res, next) {
     // console.error(err.stack)
     next(err)
 }
-function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res) {
     res.status(500).send('Error!')
 }
 

@@ -1,5 +1,9 @@
-const morgan = require('morgan')
-const json = require('morgan-json')
+/* eslint-disable */
+const morgan = require('morgan');
+const json = require('morgan-json');
+import * as logger from './logger';
+/* eslint-enable */
+
 const format = json({
     method: ':method',
     url: ':url',
@@ -8,18 +12,19 @@ const format = json({
     responseTime: ':response-time'
 })
 
-const logger = require('./logger')
 const httpLogger = morgan(format, {
     stream: {
-        write: (message) => {
+        write: (msg) => {
             const {
                 method,
                 url,
                 status,
                 contentLength,
                 responseTime,
-                body
-            } = JSON.parse(message)
+                body,
+                message,
+                stack
+            } = JSON.parse(msg)
 
             logger.info('HTTP Access Log', {
                 timestamp: new Date().toString(),
@@ -28,10 +33,12 @@ const httpLogger = morgan(format, {
                 status: Number(status),
                 contentLength,
                 responseTime: Number(responseTime),
-                body
+                body,
+                message,
+                stack
             })
         }
     }
 })
 
-module.exports = httpLogger
+export default httpLogger;

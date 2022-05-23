@@ -1,4 +1,4 @@
-const winston = require('winston')
+import * as  winston from 'winston';
 
 const options = {
     file: {
@@ -27,4 +27,4 @@ const logger = winston.createLogger({
     exitOnError: false
 })
 
-module.exports = logger
+export default logger;
