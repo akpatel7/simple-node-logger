@@ -105,7 +105,7 @@ function errorHandler(err, req, res, next) {
 }
 
 app.listen(3000, () => {
-    Logger.debug(`Server is up and running @ http://localhost:${PORT}`);
+    Logger.info(`Server is up and running @ http://localhost:${PORT}`);
     // tslint:disable-next-line: no-console
     console.log(`Server is up and running @ http://localhost:${PORT}`);
 });
