@@ -1,0 +1,8 @@
+# path/to/project/root/.eslintignore
+/node_modules/*
+
+# Ignore built files except dist/app.js
+/dist/*
+
+# Ignore client sourcemaps
+/sourcemaps/*
