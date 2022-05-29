@@ -35,10 +35,12 @@ catch(err) {
 // catch(err) {
 //     throw new Error(err);
 // }
+
 let sourceMapper;
 try {
     sourceMapper = new SourceMapper();
     sourceMapper.init('./sourcemaps');
+    console.log(sourceMapper);
 }
 catch(err) {
     throw new Error(err);
@@ -73,7 +75,6 @@ app.get('/errorhandler', (req, res, next) => {
 })
 
 app.post('/api/log', (req, res) => {
-    // tslint:disable-next-line: no-console
     console.log('Got log body:', req.body);
     const messageBody = JSON.parse(req.body.message);
     const error = {
@@ -86,11 +87,13 @@ app.post('/api/log', (req, res) => {
         additional: req.body?.additional,
     }
     console.log(sourceMapper);
+
+    if (error?.stack) {
+        const stacktrace = sourceMapper.getOriginalStacktrace(error.stack);
+        console.log("🚀 ~ file: app.ts ~ line 92 ~ app.post ~ stacktrace", stacktrace);
+        error.stack = stacktrace;
+    };
     Logger.info(error);
-    //     if (req.body.stack) {
-    //         var stacktrace = sourceMapper.getOriginalStacktrace(req.body.stack)
-    //     };
-    //    //send log to Logstash or whatever
     res.sendStatus(200);
 });
 
@@ -98,7 +101,7 @@ app.use(logErrors)
 app.use(errorHandler)
 
 function logErrors(err, req, res, next) {
-    // console.error(err.stack)
+    console.error(err);
     next(err)
 }
 function errorHandler(err, req, res, next) {
@@ -107,6 +110,5 @@ function errorHandler(err, req, res, next) {
 
 app.listen(3000, () => {
     Logger.info(`Server is up and running @ http://localhost:${PORT}`);
-    // tslint:disable-next-line: no-console
     console.log(`Server is up and running @ http://localhost:${PORT}`);
 });

@@ -1,7 +1,7 @@
 /* tslint:disable */
 import fs from 'fs';
 import path from 'path';
-// import url from 'url';
+import url from 'url';
 import sourceMap from 'source-map';
 
 export default class SourceMapper {
@@ -36,6 +36,32 @@ export default class SourceMapper {
             }
             console.log("🚀 ~ file: sourceMapper.ts ~ line 37 ~ SourceMapper ~ init ~ sourceMapConsumers", this.sourceMapConsumers);
         });
+    }
+
+   async getOriginalStacktrace (stack) {
+        const originalStack = [];
+        stack?.forEach(async stackframe => {
+            console.log("🚀 ~ file: sourceMapper.ts ~ line 43 ~ SourceMapper ~ getOriginalStacktrace ~ stackframe", stackframe);
+            stackframe.fileName = stackframe?.fileName?.substring(stackframe.fileName?.lastIndexOf('/')+1);
+            const originalstackFrame = await this._originalPositionFor(stackframe);
+            console.log("🚀 ~ file: sourceMapper.ts ~ line 46 ~ SourceMapper ~ getOriginalStacktrace ~ originalstackFrame", originalstackFrame)
+            originalStack.push(originalstackFrame);
+        });
+        console.log("🚀 ~ file: sourceMapper.ts ~ line 43 ~ SourceMapper ~ getOriginalStacktrace ~ originalStack", originalStack)
+        return originalStack;
+    }
+
+    async _originalPositionFor (stackframe) {
+        console.log("🚀 ~ file: sourceMapper.ts ~ line 55 ~ SourceMapper ~ _originalPositionFor ~ stackframe", stackframe)
+        try {
+            const { column, line, source } = await this.sourceMapConsumers?.[stackframe?.fileName]?.originalPositionFor(stackframe);
+            console.log("🚀 ~ file: sourceMapper.ts ~ line 58 ~ SourceMapper ~ _originalPositionFor ~ column, line, source", column, line, source)
+            return Object.assign(stackframe, { column, line, source });
+        } 
+        catch (err) {
+            console.error(err);
+            return stackframe;
+        }
     }
 }
 
