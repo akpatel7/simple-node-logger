@@ -74,7 +74,7 @@ app.get('/errorhandler', (req, res, next) => {
     }
 })
 
-app.post('/api/log', (req, res) => {
+app.post('/api/log', async (req, res) => {
     console.log('Got log body:', req.body);
     const messageBody = JSON.parse(req.body.message);
     const error = {
@@ -89,7 +89,8 @@ app.post('/api/log', (req, res) => {
     console.log(sourceMapper);
 
     if (error?.stack) {
-        const stacktrace = sourceMapper.getOriginalStacktrace(error.stack);
+        console.log("🚀 ~ file: app.ts ~ line 92 ~ app.post ~ stack", error.stack)
+        const stacktrace = await sourceMapper.getOriginalStacktrace(error.stack);
         console.log("🚀 ~ file: app.ts ~ line 92 ~ app.post ~ stacktrace", stacktrace);
         error.stack = stacktrace;
     };

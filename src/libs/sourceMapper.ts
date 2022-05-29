@@ -6,10 +6,12 @@ import sourceMap from 'source-map';
 
 export default class SourceMapper {
     sourceMapConsumers: {};
+
     constructor() {
       this.sourceMapConsumers = {};
     }
-    async init(sourcesPath) {
+
+    public async init(sourcesPath) {
         console.log("Initializing sourceMapper");
         fs.readdir(sourcesPath, async (err, items) => {
             console.log("🚀 ~ file: sourceMapper.ts ~ line 15 ~ SourceMapper ~ fs.readdir ~ items", items);
@@ -38,30 +40,34 @@ export default class SourceMapper {
         });
     }
 
-   async getOriginalStacktrace (stack) {
-        const originalStack = [];
-        stack?.forEach(async stackframe => {
-            console.log("🚀 ~ file: sourceMapper.ts ~ line 43 ~ SourceMapper ~ getOriginalStacktrace ~ stackframe", stackframe);
-            stackframe.fileName = stackframe?.fileName?.substring(stackframe.fileName?.lastIndexOf('/')+1);
-            const originalstackFrame = await this._originalPositionFor(stackframe);
-            console.log("🚀 ~ file: sourceMapper.ts ~ line 46 ~ SourceMapper ~ getOriginalStacktrace ~ originalstackFrame", originalstackFrame)
-            originalStack.push(originalstackFrame);
-        });
-        console.log("🚀 ~ file: sourceMapper.ts ~ line 43 ~ SourceMapper ~ getOriginalStacktrace ~ originalStack", originalStack)
-        return originalStack;
+    public async getOriginalStacktrace (stack) {
+        console.log("🚀 ~ file: sourceMapper.ts ~ line 55 ~ SourceMapper ~ getOriginalStacktrace ~ stack", stack)
+        // map stack to individual stack frames
+        return Promise.all(stack.map(stackframe => this._originalPositionFor(stackframe, this.sourceMapConsumers)));
     }
 
-    async _originalPositionFor (stackframe) {
-        console.log("🚀 ~ file: sourceMapper.ts ~ line 55 ~ SourceMapper ~ _originalPositionFor ~ stackframe", stackframe)
-        try {
-            const { column, line, source } = await this.sourceMapConsumers?.[stackframe?.fileName]?.originalPositionFor(stackframe);
-            console.log("🚀 ~ file: sourceMapper.ts ~ line 58 ~ SourceMapper ~ _originalPositionFor ~ column, line, source", column, line, source)
-            return Object.assign(stackframe, { column, line, source });
-        } 
-        catch (err) {
-            console.error(err);
-            return stackframe;
-        }
+    private async _originalPositionFor (stackframe, sourceMapConsumers) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const originalstackFrame = Object.assign({}, stackframe);
+                // strip url from filename, to match source map consumer keys (the filenames)
+                originalstackFrame.fileName = stackframe?.fileName?.substring(stackframe.fileName?.lastIndexOf('/')+1);
+                console.log("🚀 ~ file: sourceMapper.ts ~ line 55 ~ SourceMapper ~ returnnewPromise ~ originalstackFrame", originalstackFrame)
+                // use mathcing source map if found to get orignal source code location
+                const { column, line, source } = await sourceMapConsumers?.[originalstackFrame?.fileName]?.originalPositionFor(originalstackFrame);
+                console.log("🚀 ~ file: sourceMapper.ts ~ line 64 ~ SourceMapper ~ returnnewPromise ~ column, line, source", column, line, source);
+                // replace column, line, source in stack frame
+                Object.assign(originalstackFrame, { column, line, source });
+                console.log("🚀 ~ file: sourceMapper.ts ~ line 66 ~ SourceMapper ~ returnnewPromise ~ originalstackFrame", originalstackFrame);
+                // return stack frame with original source file location
+                resolve(originalstackFrame);
+            } 
+            catch (err) {
+                throw err;
+                // any error return raw stack frame
+                resolve(stackframe);
+            }
+        });
     }
 }
 
