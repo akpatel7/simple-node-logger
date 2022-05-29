@@ -85,12 +85,9 @@ app.post('/api/log', async (req, res) => {
         timestamp: req.body?.timestamp,
         additional: req.body?.additional,
     }
-    console.log(sourceMapper);
 
     if (error?.stack) {
-        console.log("🚀 ~ file: app.ts ~ line 92 ~ app.post ~ stack", error.stack)
         const stacktrace = await sourceMapper.getOriginalStacktrace(error.stack);
-        console.log("🚀 ~ file: app.ts ~ line 92 ~ app.post ~ stacktrace", stacktrace);
         error.stack = stacktrace;
     };
 
