@@ -61,4 +61,58 @@ export default class SourceMapper {
     }
 }
 
+/**
+ *  Stack frames from frontend, must be of the following type: string
+ * 
+stack: [
+    {
+      "column":37,
+      "fileName":"main-es2015.a31645a9bd075d4753ae.js",
+      "line":582,
+      "name":"HTMLButtonElement.<anonymous>",
+      "source":"webpack:///node_modules/@angular/platform-browser/__ivy_ngcc__/fesm2015/platform-browser.js"
+  },
+  ...
+]
+
+I've used:
+https://github.com/stacktracejs/stacktrace.js/ 
+
+FE code:
+
+          // client-side error
+          if (error.stack) {
+            try {
+              await StackTrace.fromError(error).then((stackframes) => {
+                stackframes.forEach(sf => {
+                  stackFrameDetail.push({
+                    name: sf.functionName,
+                    args: sf.args,
+                    fileName: sf.fileName,
+                    line: sf.lineNumber,
+                    column: sf.columnNumber,
+                    source: sf.source,
+                    isEval: sf.isEval,
+                    isNative: sf.isNative
+                  });
+                });
+              });
+              error.stack = stackFrameDetail.length > 0 ? stackFrameDetail : error.stack;
+            }
+            catch (err) {
+              console.error(err);
+            }
+          }
+
+          reportObject = {
+            name: error.name,
+            message: errorMessage || error.message,
+            stack: stackFrameDetail.length > 0 ? stackFrameDetail : error.stack,
+            url: 'location.href',
+            route: 'router.url',
+          };
+          this.logger.error(reportObject);
+        }          
+
+
 // ref: "https://juanignaciogarzon.medium.com/logging-complete-stacktraces-on-server-without-publishing-javascript-source-code-323e3d4c24ab"
