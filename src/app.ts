@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import express from 'express';
 import bodyParser from 'body-parser';
-import Logger from "./libs/logger";
+import { NgxLoggerLevel, Logger } from "./libs/logger";
 import morganMiddleware from './config/morganMiddleware';
 
 import SourceMapper from './libs/sourceMapper';
@@ -21,7 +21,7 @@ catch(err) {
     throw new Error(err);
 }
 
-
+// Find a way to keep sourcemaps secure for production
 // try {
     // if (!config.publishSourceMaps) {   //whatever check for prod env
     //     app.use(/(.*)\.js\.map$/, function(req, res) {
@@ -45,7 +45,6 @@ try {
 catch(err) {
     throw new Error(err);
 }
-
 
 app.get('/logger', (req, res, next) => {
     Logger.error("This is an error log");
@@ -94,7 +93,15 @@ app.post('/api/log', async (req, res) => {
         console.log("🚀 ~ file: app.ts ~ line 92 ~ app.post ~ stacktrace", stacktrace);
         error.stack = stacktrace;
     };
-    Logger.info(error);
+
+    if (error.level === NgxLoggerLevel.ERROR) {
+        Logger.error(error);
+    } else if (error.level === NgxLoggerLevel.DEBUG) {
+        Logger.debug(error);
+    } else  {
+        Logger.info(error);
+    }
+
     res.sendStatus(200);
 });
 

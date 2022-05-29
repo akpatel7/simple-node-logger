@@ -63,7 +63,6 @@ export default class SourceMapper {
                 resolve(originalstackFrame);
             } 
             catch (err) {
-                throw err;
                 // any error return raw stack frame
                 resolve(stackframe);
             }

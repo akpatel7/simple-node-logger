@@ -1,1 +1,0 @@
-{"version":3,"sources":["main.scss"],"names":[],"mappings":"AAAA,KACE,gBACA,qBACF,CAEA,iBAGE,SACA,UACA,kBACF","file":"styles.8cc57a33e5657127e27d.css","sourcesContent":["html {\r\n  font-size: 62.5%;\r\n  box-sizing: border-box;\r\n}\r\n\r\n*,\r\n*::before,\r\n*::after {\r\n  margin: 0;\r\n  padding: 0;\r\n  box-sizing: inherit;\r\n}\r\n"],"sourceRoot":"webpack:///"}
