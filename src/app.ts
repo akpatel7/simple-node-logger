@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import Logger from "./libs/logger";
 import morganMiddleware from './config/morganMiddleware';
 
-// import SourceMapper from './utils/sourceMapper';
+import SourceMapper from './libs/sourceMapper';
 
 const PORT = 3000;
 const app = express()
@@ -35,14 +35,14 @@ catch(err) {
 // catch(err) {
 //     throw new Error(err);
 // }
-
-// try {
-    // const sourceMapper = new SourceMapper();
-    // sourceMapper.init('directory having .js and .js.map');
-// }
-// catch(err) {
-//     throw new Error(err);
-// }
+let sourceMapper;
+try {
+    sourceMapper = new SourceMapper();
+    sourceMapper.init('./sourcemaps');
+}
+catch(err) {
+    throw new Error(err);
+}
 
 
 app.get('/logger', (req, res, next) => {
@@ -85,6 +85,7 @@ app.post('/api/log', (req, res) => {
         timestamp: req.body?.timestamp,
         additional: req.body?.additional,
     }
+    console.log(sourceMapper);
     Logger.info(error);
     //     if (req.body.stack) {
     //         var stacktrace = sourceMapper.getOriginalStacktrace(req.body.stack)

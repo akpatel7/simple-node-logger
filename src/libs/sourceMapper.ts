@@ -5,25 +5,28 @@ import path from 'path';
 import sourceMap from 'source-map';
 
 export default class SourceMapper {
-    private sourceMapConsumers = {};
+    sourceMapConsumers: {};
     constructor() {
-        this.sourceMapConsumers = {};
+      this.sourceMapConsumers = {};
     }
     async init(sourcesPath) {
         console.log("Initializing sourceMapper");
         fs.readdir(sourcesPath, async (err, items) => {
+            console.log("🚀 ~ file: sourceMapper.ts ~ line 15 ~ SourceMapper ~ fs.readdir ~ items", items);
             if (!items || !items.length) {
-                throw new Error("Invalid source path");
+            throw new Error("Invalid source path");
             }
-            for (const item of items) {
+            for (var item of items) {
                 if (item.endsWith('.js')) {
-                    const idx = items.indexOf(item + '.map');
+                    var idx = items.indexOf(item + '.map');
                     if (idx >= 0) {
+                        console.log('OUTER path.join(sourcesPath, items[idx]', path.join(sourcesPath, items[idx]));
                         const contents = fs.readFileSync(path.join(sourcesPath, items[idx]), 'utf8');
                         const consumer = await new sourceMap.SourceMapConsumer(contents);
                         this.sourceMapConsumers[item] = consumer;
-                        const jdx = items.indexOf(item + '.map');
+                        var idx = items.indexOf(item + '.map');
                         if (idx >= 0) {
+                            console.log('INNER path.join(sourcesPath, items[idx]', path.join(sourcesPath, items[idx]));
                             const contents = fs.readFileSync(path.join(sourcesPath, items[idx]), 'utf8');
                             const consumer = await new sourceMap.SourceMapConsumer(contents);
                             this.sourceMapConsumers[item] = consumer;
@@ -31,6 +34,7 @@ export default class SourceMapper {
                     }
                 }
             }
+            console.log("🚀 ~ file: sourceMapper.ts ~ line 37 ~ SourceMapper ~ init ~ sourceMapConsumers", this.sourceMapConsumers);
         });
     }
 }
